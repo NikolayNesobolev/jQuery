@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Promises</title>
+
+        <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+            }
+
+            button {
+                height: 30px;
+                width: 10%;
+            }
+
+            div {
+                padding: 10px;
+            }
+
+            table {
+                text-align: center;
+                padding: 10px;
+            }
+
+            p {
+                display: none;
+            }
+        </style>
+
+        <script
+            type="text/javascript"
+            src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
+        ></script>
+        <script type="text/javascript">
+            function get(url) {
+                return new Promise(function (resolve, reject) {
+                    var req = new XMLHttpRequest();
+                    req.open("GET", url);
+
+                    req.onload = function () {
+                        if (req.status == 200) {
+                            resolve(req.response);
+                        } else {
+                            reject(Error(req.statusText));
+                        }
+                    };
+
+                    req.onerror = function () {
+                        reject(Error("Error"));
+                    };
+
+                    req.send();
+                });
+            }
+
+            $(document).ready(function () {
+                $("button").click(async function () {
+                    await get(
+                        "https://random-data-api.com/api/beer/random_beer"
+                    ).then(
+                        function (response) {
+                            $("#response").html(response);
+                            console.log("RESPONSE: " + response);
+
+                            $("p").css("display", "flex");
+
+                            $.each(JSON.parse(response), function (key, val) {
+                                $("table").append(
+                                    "<tr><td>" +
+                                        key +
+                                        "</td><td> - " +
+                                        val +
+                                        "</td></tr>"
+                                );
+                            });
+                        },
+                        function (error) {
+                            console.error(error);
+                        }
+                    );
+                    $("button").unbind();
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <button>Load content</button>
+
+        <p>JSON:</p>
+        <div id="response"></div>
+
+        <p>TABLE:</p>
+        <table></table>
+    </body>
+</html>
